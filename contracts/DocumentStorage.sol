@@ -16,7 +16,16 @@ contract DocumentStorage {
         documents.push(Document(_name, _hash, timestamp, _relativeParty, _version));
     }
 
-    function getDocument() public view returns (Document[] memory) {
+    function getDocuments() public view returns (Document[] memory) {
         return documents;
+    }
+
+    function getDocument(string memory _hash) public view returns (Document memory) {
+        for (uint i = 0; i < documents.length; i++) {
+            if (keccak256(abi.encodePacked(documents[i].hash)) == keccak256(abi.encodePacked(_hash))) {
+                return documents[i];
+            }
+        }
+        revert("Document not found");
     }
 }
