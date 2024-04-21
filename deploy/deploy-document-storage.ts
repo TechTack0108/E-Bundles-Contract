@@ -6,7 +6,7 @@ import { verify } from "../utils/verify";
 import "dotenv/config";
 
 const deployDocumentStorage: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-    const BLOCK_CONFIRMATIONS = 3;
+    const BLOCK_CONFIRMATIONS = 1;
     const { deployments, getNamedAccounts } = hre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
