@@ -24,8 +24,6 @@ describe("Document Storage", () => {
             const name = "test";
             const hash = "0x123456";
             const timeStamp = 1112123;
-            const relativeParty = ["party1", "party2"];
-            const version = "1.0.0";
 
             const transaction = await documentStorage.addDocument(name, hash, timeStamp, relativeParty, version);
             await transaction.wait(1);
