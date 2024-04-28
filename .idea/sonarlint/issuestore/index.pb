@@ -5,3 +5,5 @@ M
 contracts/DocumentStorage.sol,3\6\364121648e3c7bddb22ba646e39a5ab9fa8216dd
 L
 test/DocumentStorage.test.ts,e\5\e557152d3a8a91b071008e81b184a6b7a79ab585
+G
+scripts/add-document.ts,6\a\6a1e94cb39781230fee0b0523be1ed68d836b96b

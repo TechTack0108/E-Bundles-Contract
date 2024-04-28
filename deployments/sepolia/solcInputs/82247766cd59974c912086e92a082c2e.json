@@ -1,0 +1,39 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/AccoutStorage.sol": {
+      "content": ""
+    },
+    "contracts/DocumentStorage.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\ncontract DocumentStorage {\n    // Error\n    error DocumentStorage_Error_InvalidOwner();\n    error DocumentStorage_Error_InvalidTransactionId();\n    error DocumentStorage_Error_AlreadyConfirm();\n    error DocumentStorage_Error_TransactionAlreadyExecute();\n    error DocumentStorage_Error_InvalidVersion();\n\n    // Events\n    event TransactionSubmitted(uint256 indexed transactionId, Document document);\n    event TransactionConfirmed(uint256 indexed transactionId);\n    event DocumentAdded(uint256 indexed transactionId);\n\n    // State variables\n    address[] public owners;\n    mapping(address => bool) public isOwner;\n    uint256 public num_confirmation;\n    mapping(uint256 => mapping(address=>bool)) public isConfirmed;\n    Transaction[] public transactions;\n    Document[] public documents;\n\n    struct Document {\n        string name;\n        string uri;\n        uint256 timestamp;\n    }\n\n    struct Transaction{\n        Document document;\n        bool executed;\n    }\n\n\n    constructor(address[] memory _owners, uint256 numConfirmationRequired) {\n        require(_owners.length >= numConfirmationRequired, \"Invalid number of owners\");\n        num_confirmation = numConfirmationRequired;\n        for(uint i = 0; i < _owners.length; i++) {\n            if(_owners[i] == address(0) || isOwner[_owners[i]]) {\n                revert DocumentStorage_Error_InvalidOwner();\n            }     \n            isOwner[_owners[i]] = true;\n            owners.push(_owners[i]);\n        }\n    }\n\n    // MultiSig Wallet\n    function submitTransaction(Document memory document) public {\n        uint256 transactionId = transactions.length;\n        transactions.push(Transaction(document, false));\n        confirmTransaction(transactionId);\n        emit TransactionSubmitted(transactionId, document);\n    }\n\n    function confirmTransaction(uint256 transactionId) public {\n        if(transactionId >= transactions.length) {\n            revert DocumentStorage_Error_InvalidTransactionId();\n        }\n        if(!isConfirmed[transactionId][msg.sender]) {\n            isConfirmed[transactionId][msg.sender] = true;\n        }\n        else{\n            revert DocumentStorage_Error_AlreadyConfirm();\n        }\n        emit TransactionConfirmed(transactionId);\n        if(isTransactionConfirmed(transactionId)) {\n            executeTransaction(transactionId);\n        }\n    }\n\n    function isTransactionConfirmed(uint256 transactionId) internal view returns (bool)  {\n        if(transactionId >= transactions.length) {\n            revert DocumentStorage_Error_InvalidTransactionId();\n        }\n        uint256 confirmationCount = 0;\n        for(uint i = 0; i < owners.length; i++) {\n            if(isConfirmed[transactionId][owners[i]]) {\n                confirmationCount++;\n            }\n        }\n        return confirmationCount >= num_confirmation;\n    }\n\n    function executeTransaction(uint256 transactionId) internal{\n        if(transactionId >= transactions.length) {\n            revert DocumentStorage_Error_InvalidTransactionId();\n        }\n        if(transactions[transactionId].executed) {\n            revert DocumentStorage_Error_TransactionAlreadyExecute();\n        }\n        transactions[transactionId].executed = true;\n        Document memory document = transactions[transactionId].document;\n        documents.push(document);\n        emit DocumentAdded(transactionId);\n    }\n\n    function getDocument(uint256 version) public view returns (Document memory) {\n        if(version > documents.length) {\n            revert DocumentStorage_Error_InvalidVersion();\n        }\n        return documents[version-1];\n    }\n    \n    function getLastestDocumentVersion() public view returns (Document memory) {\n        return documents[documents.length-1];\n    }\n}"
+    }
+  },
+  "settings": {
+    "evmVersion": "paris",
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

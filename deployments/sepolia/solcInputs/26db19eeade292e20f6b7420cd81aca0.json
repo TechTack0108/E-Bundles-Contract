@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/AccoutStorage.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.24;\r\n\r\ncontract AccountStorage{\r\n    error AccountStorage_NotOwner();\r\n\r\n    struct UserProfile{\r\n        address walletAddress;\r\n        LabeledFaceDescriptors labeledFaceDescriptors;\r\n    }\r\n    \r\n    struct LabeledFaceDescriptors{\r\n        string label;\r\n        string[][] descriptors;\r\n    }\r\n\r\n       modifier ownerOnly(){\r\n        if(msg.sender != i_owner){\r\n            revert AccountStorage_NotOwner();\r\n        }\r\n        _;\r\n    }\r\n\r\n    mapping(string=> UserProfile) public s_accountStorage;\r\n    address immutable public i_owner;\r\n\r\n    constructor(){\r\n        i_owner = msg.sender;\r\n    }\r\n\r\n    function updateStorage(string memory ensDomainName,UserProfile memory user) public ownerOnly {\r\n        s_accountStorage[ensDomainName] = user;\r\n    }\r\n} "
+    }
+  },
+  "settings": {
+    "evmVersion": "paris",
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

@@ -24,8 +24,8 @@ contract DocumentStorage {
 
     struct Document {
         string name;
-        string hash;
-        uint256 timestamp;
+        string uri;
+        string timestamp;
     }
 
     struct Transaction{
@@ -40,7 +40,7 @@ contract DocumentStorage {
         for(uint i = 0; i < _owners.length; i++) {
             if(_owners[i] == address(0) || isOwner[_owners[i]]) {
                 revert DocumentStorage_Error_InvalidOwner();
-            }
+            }     
             isOwner[_owners[i]] = true;
             owners.push(_owners[i]);
         }
@@ -50,6 +50,7 @@ contract DocumentStorage {
     function submitTransaction(Document memory document) public {
         uint256 transactionId = transactions.length;
         transactions.push(Transaction(document, false));
+        confirmTransaction(transactionId);
         emit TransactionSubmitted(transactionId, document);
     }
 
@@ -82,7 +83,7 @@ contract DocumentStorage {
         return confirmationCount >= num_confirmation;
     }
 
-    function executeTransaction(uint256 transactionId) public{
+    function executeTransaction(uint256 transactionId) internal{
         if(transactionId >= transactions.length) {
             revert DocumentStorage_Error_InvalidTransactionId();
         }
@@ -95,14 +96,14 @@ contract DocumentStorage {
         emit DocumentAdded(transactionId);
     }
 
-    function getDocuments() public view returns (Document[] memory) {
-        return documents;
-    }
-
     function getDocument(uint256 version) public view returns (Document memory) {
         if(version > documents.length) {
             revert DocumentStorage_Error_InvalidVersion();
         }
         return documents[version-1];
+    }
+    
+    function getLastestDocumentVersion() public view returns (Document memory) {
+        return documents[documents.length-1];
     }
 }
